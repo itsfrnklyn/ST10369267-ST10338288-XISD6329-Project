@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F3F3F3"
+    tools:context=".MainActivity">
+
+    <!-- ========================================== -->
+    <!-- TOP HEADER (White background with Logo)    -->
+    <!-- ========================================== -->
+    <LinearLayout
+        android:id="@+id/topHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:padding="12dp"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- If you don't have the logo yet, change src to @android:drawable/ic_menu_gallery -->
+        <ImageView
+            android:layout_width="140dp"
+            android:layout_height="50dp"
+            android:src="@drawable/full_logo"
+            android:contentDescription="Nyamatsi Logo"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
+
+    <!-- ========================================== -->
+    <!-- FRAGMENT CONTAINER                         -->
+    <!-- This is where the screens will swap out    -->
+    <!-- ========================================== -->
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/topHeader"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav" />
+
+    <!-- ========================================== -->
+    <!-- BOTTOM NAVIGATION BAR                      -->
+    <!-- ========================================== -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#333333"
+        app:itemIconTint="#FFFFFF"
+        app:itemTextColor="#FFFFFF"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
