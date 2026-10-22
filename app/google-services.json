@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "907574473626",
+    "project_id": "nyamatsi-holdings-8a87d",
+    "storage_bucket": "nyamatsi-holdings-8a87d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:907574473626:android:4330dc3dae6dce218e0023",
+        "android_client_info": {
+          "package_name": "com.example.nyamatsiapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "907574473626-olbtl0iopgc735vinbdbk4bl86hu20as.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nyamatsiapp",
+            "certificate_hash": "b84fde346e0f5da339d8fe8cf58d46424b8db2d8"
+          }
+        },
+        {
+          "client_id": "907574473626-knkd93kimd3fsrdutd1hn6ks338ibpqa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCT2D3Phmwq-D6DkN_ydefDXaSDIjnObB8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "907574473626-knkd93kimd3fsrdutd1hn6ks338ibpqa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
