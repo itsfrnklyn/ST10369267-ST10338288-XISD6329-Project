@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- ROOT ELEMENT: manifest -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission
+        android:name="android.permission.INTERNET" />
+
     <application
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -14,33 +15,44 @@
         android:theme="@style/Theme.NyamatsiApp"
         tools:targetApi="31">
 
-        <!-- 1. LOGIN ACTIVITY IS THE STARTING PAGE -->
+        <!-- Login -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
+
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action
+                    android:name="android.intent.action.MAIN" />
+
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
-        <!-- 2. MAIN ACTIVITY (Holds the Bottom Navigation) -->
+        <!-- Main Application -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />
 
-        <!-- 3. REGISTER ACTIVITY -->
+        <!-- Registration -->
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
 
-        <!-- 4. DETAIL PAGES FOR THE PACKAGES -->
+        <!-- Cleaning Services -->
         <activity
             android:name=".CleaningDetailsActivity"
             android:exported="false" />
 
+        <!-- Construction Services -->
         <activity
             android:name=".ConstructionDetailsActivity"
+            android:exported="false" />
+
+        <!-- Help and Support -->
+        <activity
+            android:name=".HelpActivity"
             android:exported="false" />
 
     </application>

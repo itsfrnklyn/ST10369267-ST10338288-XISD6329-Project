@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:background="@color/background_light"
+    android:fillViewport="true">
 
-    <LinearLayout
+
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="20dp">
 
+        <!-- Page title -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -19,71 +23,145 @@
             android:textStyle="bold"
             android:textColor="@color/dark_grey"
             android:gravity="center"
-            android:layout_marginBottom="20dp"/>
+            android:layout_marginBottom="20dp" />
 
+        <!-- Full name -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:hint="Full Name">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/bookName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"/>
+                android:inputType="textPersonName" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Email -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:hint="Email Address">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/bookEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"/>
+                android:inputType="textEmailAddress" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Phone number -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:hint="Cell Phone Number">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/bookPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="phone"/>
+                android:inputType="phone" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Service address -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:hint="Service Address">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/bookAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPostalAddress"/>
+                android:inputType="textPostalAddress" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Service selection heading -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Service"
+            android:textColor="@color/dark_grey"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
+
+        <!-- Cleaning or Construction -->
+        <Spinner
+            android:id="@+id/bookService"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Preferred date -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:hint="Preferred Date">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/bookDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="date"
-                android:focusable="false"/> <!-- Will trigger DatePicker dialog later -->
+                android:hint="Tap to select a date"
+                android:inputType="none"
+                android:focusable="false"
+                android:clickable="true"
+                android:cursorVisible="false" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Submit button -->
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSubmitBooking"
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:text="Submit Booking"
             android:textSize="16sp"
+            android:textColor="#FFFFFF"
             app:backgroundTint="@color/dark_grey"
-            app:cornerRadius="12dp"/>
+            app:cornerRadius="12dp" />
+
+        <!-- Booking confirmation message -->
+        <TextView
+            android:id="@+id/bookingMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/dark_grey"
+            android:textSize="14sp"
+            android:gravity="center" />
+
+        <!-- Booking history -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"
+            android:text="My Booking Requests"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_grey" />
+
+        <TextView
+            android:id="@+id/bookingHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading bookings..."
+            android:textColor="@color/dark_grey"
+            android:textSize="15sp"
+            android:paddingBottom="24dp" />
 
     </LinearLayout>
+
 </ScrollView>

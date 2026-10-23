@@ -1,22 +1,48 @@
-package com.example.nyamatsiapp // Make sure this matches your package name!
+
+package com.example.nyamatsiapp
 
 import android.content.Intent
 import android.os.Bundle
+
 import androidx.appcompat.app.AppCompatActivity
+
 import com.google.android.material.button.MaterialButton
 
 class CleaningDetailsActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_cleaning_details)
 
-        val btnBookNow = findViewById<MaterialButton>(R.id.btnBookNow)
+        setContentView(
+            R.layout.activity_cleaning_details
+        )
+
+        val btnBookNow =
+            findViewById<MaterialButton>(
+                R.id.btnBookNow
+            )
+
         btnBookNow.setOnClickListener {
-            // Go to MainActivity and tell it to open the Bookings tab
-            val intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("openTab", "bookings")
+
+            val intent = Intent(
+                this,
+                MainActivity::class.java
+            )
+
+            // Open the bookings tab.
+            intent.putExtra(
+                "openTab",
+                "bookings"
+            )
+
+            // Automatically select Cleaning.
+            intent.putExtra(
+                "service",
+                "Cleaning"
+            )
+
             startActivity(intent)
-            finish() // Close this detail page so back button goes to home
+            finish()
         }
     }
 }
