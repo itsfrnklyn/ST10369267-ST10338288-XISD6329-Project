@@ -92,6 +92,15 @@ class SettingsFragment : Fragment() {
             )
 
 
+
+        val adminButton =
+            root.findViewById<MaterialButton>(
+                R.id.btnAdminDashboard
+            )
+
+        adminButton.visibility = View.GONE
+
+
         val helpButton =
             root.findViewById<MaterialButton>(
                 R.id.btnHelp
@@ -320,6 +329,51 @@ class SettingsFragment : Fragment() {
                 )
                 .apply()
         }
+
+
+
+// ========================================
+// ADMIN DASHBOARD ACCESS
+// ========================================
+
+// Check whether the signed-in customer
+// has an active administrator record.
+        FirebaseGate.db()
+            .collection("admins")
+            .document(user.uid)
+            .get()
+            .addOnSuccessListener { adminDocument ->
+
+                if (!isAdded || view !== root) {
+                    return@addOnSuccessListener
+                }
+
+                val isAdmin =
+                    adminDocument.exists() &&
+                            adminDocument.getBoolean("active") == true
+
+                adminButton.visibility =
+                    if (isAdmin) View.VISIBLE else View.GONE
+            }
+            .addOnFailureListener {
+
+                if (isAdded && view === root) {
+                    adminButton.visibility = View.GONE
+                }
+            }
+
+// Open the administrator dashboard.
+        adminButton.setOnClickListener {
+
+            val intent = Intent(
+                requireContext(),
+                AdminBookingsActivity::class.java
+            )
+
+            startActivity(intent)
+        }
+
+
 
         // ========================================
         // 7. OPEN HELP AND SUPPORT
