@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Selected input field -->
+    <item
+        android:state_focused="true"
+        android:color="#00A6CE" />
+
+    <!-- Default border -->
+    <item
+        android:color="#AEBBC8" />
+
+</selector>

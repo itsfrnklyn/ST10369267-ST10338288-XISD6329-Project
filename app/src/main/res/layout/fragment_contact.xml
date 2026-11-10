@@ -1,154 +1,244 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3F3F3">
+    android:background="#F4F5F7"
+    android:fillViewport="true"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:gravity="center_horizontal">
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="130dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Contact Us"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginBottom="30dp"/>
+            android:textColor="#24292F"
+            android:textSize="25sp"
+            android:textStyle="bold" />
 
-        <!-- WhatsApp Card -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Get in touch with Nyamatsi Holdings."
+            android:textColor="#68717D"
+            android:textSize="14sp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- WHATSAPP -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnWhatsApp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
+            android:layout_marginBottom="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:padding="18dp">
 
                 <ImageView
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:src="@drawable/whatsapp" />
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:src="@drawable/whatsapp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="WhatsApp" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
                     android:layout_marginStart="16dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WhatsApp" android:textStyle="bold" android:textColor="#333333" android:textSize="18sp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="+27 79 092 7401" android:textColor="#555555"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="WhatsApp"
+                        android:textColor="#24292F"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="+27 79 092 7401"
+                        android:textColor="#68717D"
+                        android:textSize="14sp"
+                        android:layout_marginTop="3dp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Phone Card -->
+        <!-- PHONE -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
+            android:layout_marginBottom="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:padding="18dp">
 
                 <ImageView
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:src="@drawable/phone" />
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:src="@drawable/phone"
+                    android:contentDescription="Phone" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
                     android:layout_marginStart="16dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phone" android:textStyle="bold" android:textColor="#333333" android:textSize="18sp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="+27 79 092 7401" android:textColor="#555555"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Phone"
+                        android:textColor="#24292F"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="+27 79 092 7401"
+                        android:textColor="#68717D"
+                        android:textSize="14sp"
+                        android:layout_marginTop="3dp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- TikTok Card -->
+        <!-- TIKTOK -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnTikTok"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
+            android:layout_marginBottom="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:padding="18dp">
 
                 <ImageView
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:src="@drawable/tiktok" />
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:src="@drawable/tiktok"
+                    android:contentDescription="TikTok" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
                     android:layout_marginStart="16dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TikTok" android:textStyle="bold" android:textColor="#333333" android:textSize="18sp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@nyamatsi.holdings" android:textColor="#555555"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="TikTok"
+                        android:textColor="#24292F"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@nyamatsi.holdings"
+                        android:textColor="#68717D"
+                        android:textSize="14sp"
+                        android:layout_marginTop="3dp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Gmail Card -->
+        <!-- EMAIL -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnGmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
+            android:layout_marginBottom="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:padding="18dp">
 
                 <ImageView
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:src="@drawable/gmail" />
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:src="@drawable/gmail"
+                    android:contentDescription="Email" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
                     android:layout_marginStart="16dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Email" android:textStyle="bold" android:textColor="#333333" android:textSize="18sp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="nyamatsiholdings@gmail.com" android:textColor="#555555"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Email"
+                        android:textColor="#24292F"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="nyamatsiholdings@gmail.com"
+                        android:textColor="#68717D"
+                        android:textSize="14sp"
+                        android:layout_marginTop="3dp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

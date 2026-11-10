@@ -4,210 +4,315 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3F3F3"
-    android:fillViewport="true">
+    android:background="#F4F5F7"
+    android:fillViewport="true"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="150dp">
 
-        <!-- SETTINGS TITLE -->
+        <!-- ================================= -->
+        <!-- SETTINGS PAGE HEADER              -->
+        <!-- ================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Settings"
-            android:textColor="#333333"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="24dp" />
+            android:textColor="#24292F"
+            android:textSize="26sp"
+            android:textStyle="bold" />
 
-        <!-- ACCOUNT SETTINGS CARD -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Manage your account and preferences."
+            android:textColor="#68717D"
+            android:textSize="14sp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="22dp" />
+
+        <!-- ================================= -->
+        <!-- ACCOUNT SETTINGS CARD             -->
+        <!-- ================================= -->
+
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
+            android:layout_marginBottom="18dp"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="2dp"
             app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="18dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Account Settings"
-                    android:textColor="#00BFFF"
+                    android:textColor="#008DBB"
                     android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Update your personal information"
-                    android:textColor="#555555"
+                    android:text="Update your personal information."
+                    android:textColor="#68717D"
                     android:textSize="14sp"
-                    android:layout_marginBottom="20dp" />
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="22dp" />
 
-                <!-- FIRST NAME -->
+                <!-- FIRST NAME LABEL -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="First Name"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- FIRST NAME INPUT -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="First Name"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="18dp"
+                    app:hintEnabled="false"
+                    app:boxBackgroundMode="outline"
+                    app:boxBackgroundColor="#FFFFFF"
+                    app:boxStrokeColor="@color/settings_field_stroke"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidthFocused="2dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/settingsFirst"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textPersonName"
-                        android:maxLength="80" />
+                        android:maxLength="80"
+                        android:minHeight="56dp"
+                        android:hint="Enter first name"
+                        android:textColor="#24292F"
+                        android:textColorHint="#98A2AD"
+                        android:textSize="16sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- LAST NAME -->
+                <!-- LAST NAME LABEL -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Last Name"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- LAST NAME INPUT -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Last Name"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="18dp"
+                    app:hintEnabled="false"
+                    app:boxBackgroundMode="outline"
+                    app:boxBackgroundColor="#FFFFFF"
+                    app:boxStrokeColor="@color/settings_field_stroke"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidthFocused="2dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/settingsLast"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textPersonName"
-                        android:maxLength="80" />
+                        android:maxLength="80"
+                        android:minHeight="56dp"
+                        android:hint="Enter last name"
+                        android:textColor="#24292F"
+                        android:textColorHint="#98A2AD"
+                        android:textSize="16sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- PHONE NUMBER -->
+                <!-- PHONE NUMBER LABEL -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Phone Number"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- PHONE NUMBER INPUT -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Phone Number"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="18dp"
+                    app:hintEnabled="false"
+                    app:boxBackgroundMode="outline"
+                    app:boxBackgroundColor="#FFFFFF"
+                    app:boxStrokeColor="@color/settings_field_stroke"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidthFocused="2dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/settingsPhone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="phone"
-                        android:maxLength="20" />
+                        android:maxLength="20"
+                        android:minHeight="56dp"
+                        android:hint="Enter phone number"
+                        android:textColor="#24292F"
+                        android:textColorHint="#98A2AD"
+                        android:textSize="16sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- READ-ONLY ACCOUNT EMAIL -->
+                <!-- ACCOUNT EMAIL -->
                 <TextView
                     android:id="@+id/settingsEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Loading account email..."
-                    android:textColor="#555555"
+                    android:textColor="#59636F"
                     android:textSize="14sp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginBottom="20dp" />
 
-                <!-- SAVE PROFILE -->
+                <!-- SAVE PROFILE BUTTON -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSaveSettings"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    android:layout_height="54dp"
                     android:text="Save Profile"
                     android:textColor="#FFFFFF"
-                    app:backgroundTint="#00BFFF"
-                    app:cornerRadius="12dp" />
+                    android:textStyle="bold"
+                    app:backgroundTint="#008DBB"
+                    app:cornerRadius="14dp" />
 
             </LinearLayout>
-
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- PREFERENCES CARD -->
+        <!-- ================================= -->
+        <!-- APP PREFERENCES CARD              -->
+        <!-- ================================= -->
+
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
+            android:layout_marginBottom="18dp"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="2dp"
             app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="18dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="App Preferences"
-                    android:textColor="#00BFFF"
+                    android:textColor="#008DBB"
                     android:textSize="20sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="10dp" />
+                    android:layout_marginBottom="16dp" />
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/switchNotifications"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="48dp"
                     android:text="Allow in-app update notices"
-                    android:textColor="#333333" />
+                    android:textColor="#24292F"
+                    app:showText="false" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Saves your preference for future notification features."
-                    android:textColor="#777777"
+                    android:text="This saves your preference for future notification features."
+                    android:textColor="#68717D"
                     android:textSize="12sp"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="8dp" />
 
             </LinearLayout>
-
         </com.google.android.material.card.MaterialCardView>
 
 
-        <!-- ADMIN DASHBOARD BUTTON -->
+        <!-- CHANGE PASSWORD BUTTON -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChangePassword"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginBottom="12dp"
+            android:text="Change Password"
+            android:textColor="#FFFFFF"
+            app:backgroundTint="#008DBB"
+            app:cornerRadius="14dp" />
+
+
+        <!-- ================================= -->
+        <!-- ADMIN DASHBOARD BUTTON            -->
+        <!-- ================================= -->
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdminDashboard"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
+            android:layout_height="54dp"
+            android:layout_marginBottom="12dp"
             android:text="Admin Dashboard"
             android:textColor="#FFFFFF"
             android:visibility="gone"
-            android:layout_marginBottom="12dp"
-            app:backgroundTint="#00BFFF"
-            app:cornerRadius="12dp" />
+            app:backgroundTint="#008DBB"
+            app:cornerRadius="14dp" />
 
-        <!-- HELP BUTTON -->
+        <!-- HELP AND SUPPORT BUTTON -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnHelp"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
+            android:layout_height="54dp"
+            android:layout_marginBottom="12dp"
             android:text="Help and Support"
             android:textColor="#FFFFFF"
             app:backgroundTint="#555555"
-            app:cornerRadius="12dp"
-            android:layout_marginBottom="12dp" />
+            app:cornerRadius="14dp" />
 
         <!-- LOGOUT BUTTON -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
+            android:layout_height="54dp"
             android:text="Log Out"
             android:textColor="#FFFFFF"
             app:backgroundTint="#333333"
-            app:cornerRadius="12dp"
-            android:layout_marginBottom="20dp" />
+            app:cornerRadius="14dp" />
 
     </LinearLayout>
-
 </ScrollView>

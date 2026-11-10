@@ -1,7 +1,8 @@
-
 package com.example.nyamatsiapp
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 
 import androidx.appcompat.app.AppCompatActivity
@@ -14,35 +15,73 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Make sure the user is authenticated.
+        // =====================================
+        // CHECK FIREBASE AUTHENTICATION
+        // =====================================
+
         if (
             !FirebaseGate.isConfigured(this) ||
             FirebaseGate.auth().currentUser == null
         ) {
 
-            val intent = Intent(
+            val loginIntent = Intent(
                 this,
                 LoginActivity::class.java
-            )
+            ).apply {
 
-            intent.flags =
-                Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+                flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
 
-            startActivity(intent)
+            startActivity(loginIntent)
             finish()
             return
         }
 
-        // Load our existing design.
+        // =====================================
+        // LOAD MAIN APPLICATION
+        // =====================================
+
         setContentView(R.layout.activity_main)
+
+        // Handle the status bar, notch and
+        // Android navigation area.
+        ScreenInsets.apply(
+            this,
+            findViewById(R.id.mainRoot)
+        )
+
+        // =====================================
+        // FLOATING NAVIGATION SETUP
+        // =====================================
 
         val bottomNav =
             findViewById<BottomNavigationView>(
                 R.id.bottomNav
             )
 
-        // Preserve original navigation.
+        // Remove any default background tint.
+        bottomNav.backgroundTintList = null
+
+        bottomNav.background =
+            ColorDrawable(Color.TRANSPARENT)
+
+        // Preserve the original navy/cyan PNG icons.
+        bottomNav.itemIconTintList = null
+
+        // Remove unwanted elevation.
+        bottomNav.elevation = 0f
+
+        // Always display all navigation labels.
+        bottomNav.labelVisibilityMode =
+            com.google.android.material.navigation
+                .NavigationBarView.LABEL_VISIBILITY_LABELED
+
+        // =====================================
+        // HANDLE NAVIGATION
+        // =====================================
+
         bottomNav.setOnItemSelectedListener { item ->
 
             when (item.itemId) {
@@ -71,45 +110,49 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // =====================================
+        // OPEN INITIAL PAGE
+        // =====================================
+
         if (savedInstanceState == null) {
 
             val openTab =
                 intent.getStringExtra("openTab")
 
-
             if (openTab == "bookings") {
 
-                val selectedService =
-                    intent.getStringExtra("service")
+                val bookingFragment =
+                    BookingsFragment().apply {
 
-                // Create the booking fragment.
-                val bookingFragment = BookingsFragment()
+                        arguments = Bundle().apply {
 
-                // Pass the selected service to it.
-                val arguments = Bundle()
+                            putString(
+                                "service",
+                                intent.getStringExtra("service")
+                            )
+                        }
+                    }
 
-                arguments.putString(
-                    "service",
-                    selectedService
-                )
-
-                bookingFragment.arguments = arguments
-
-                // Mark Bookings as the selected tab.
                 bottomNav.menu.findItem(
                     R.id.nav_bookings
                 ).isChecked = true
 
-                // Open the booking form.
                 loadFragment(bookingFragment)
 
             } else {
 
+                bottomNav.menu.findItem(
+                    R.id.nav_home
+                ).isChecked = true
+
                 loadFragment(HomeFragment())
             }
-
         }
     }
+
+    // =====================================
+    // REPLACE MAIN SCREEN CONTENT
+    // =====================================
 
     private fun loadFragment(fragment: Fragment) {
 

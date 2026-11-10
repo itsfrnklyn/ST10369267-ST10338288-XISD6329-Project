@@ -1,20 +1,27 @@
-
 package com.example.nyamatsiapp
 
 import android.app.DatePickerDialog
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 
 import androidx.fragment.app.Fragment
 
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputEditText
+
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
 
@@ -23,9 +30,11 @@ import java.util.Locale
 
 class BookingsFragment : Fragment() {
 
-    // Keep a reference so we can stop listening
-    // when the customer leaves this screen.
     private var bookingsListener: ListenerRegistration? = null
+
+    // ============================================
+    // 1. CREATE BOOKING SCREEN
+    // ============================================
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,27 +42,23 @@ class BookingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        // Load the existing booking page.
         val root = inflater.inflate(
             R.layout.fragment_bookings,
             container,
             false
         )
 
-        // Retrieve the current Firebase user.
         val user = FirebaseGate.auth().currentUser
 
         if (user == null) {
-            Toast.makeText(
-                requireContext(),
-                "Please log in to make a booking",
-                Toast.LENGTH_LONG
-            ).show()
-
+            showMessage("Please log in to make a booking")
             return root
         }
 
-        // Connect the XML fields to Kotlin.
+        // ============================================
+        // 2. CONNECT XML FIELDS
+        // ============================================
+
         val nameInput =
             root.findViewById<TextInputEditText>(
                 R.id.bookName
@@ -94,20 +99,24 @@ class BookingsFragment : Fragment() {
                 R.id.bookingMessage
             )
 
-        val bookingHistory =
-            root.findViewById<TextView>(
-                R.id.bookingHistory
+        val historyContainer =
+            root.findViewById<LinearLayout>(
+                R.id.layoutBookingRequestsContainer
             )
 
-        // -----------------------------------
-        // SECTION 1: Prefill customer details
-        // -----------------------------------
+        // ============================================
+        // 3. PREFILL CUSTOMER INFORMATION
+        // ============================================
 
-        nameInput.setText(user.displayName.orEmpty())
-        emailInput.setText(user.email.orEmpty())
+        nameInput.setText(
+            user.displayName.orEmpty()
+        )
 
-        // Load the phone number from Firestore,
-        // if the customer has saved one.
+        emailInput.setText(
+            user.email.orEmpty()
+        )
+
+        // Retrieve additional customer information.
         FirebaseGate.db()
             .collection("users")
             .document(user.uid)
@@ -118,59 +127,64 @@ class BookingsFragment : Fragment() {
                     return@addOnSuccessListener
                 }
 
-                val phone =
+                val savedPhone =
                     document.getString("phone").orEmpty()
 
-                if (phoneInput.text.isNullOrBlank()) {
-                    phoneInput.setText(phone)
-                }
-
-                val displayName =
+                val savedName =
                     document.getString("displayName").orEmpty()
 
                 if (
-                    nameInput.text.isNullOrBlank() &&
-                    displayName.isNotBlank()
+                    phoneInput.text.isNullOrBlank() &&
+                    savedPhone.isNotBlank()
                 ) {
-                    nameInput.setText(displayName)
+                    phoneInput.setText(savedPhone)
+                }
+
+                if (
+                    nameInput.text.isNullOrBlank() &&
+                    savedName.isNotBlank()
+                ) {
+                    nameInput.setText(savedName)
                 }
             }
 
-        // -----------------------------------
-        // SECTION 2: Service selection
-        // -----------------------------------
+        // ============================================
+        // 4. SERVICE DROPDOWN
+        // ============================================
 
         val services = listOf(
             "Cleaning",
             "Construction"
         )
 
+        // Custom layout ensures text remains visible.
         val serviceAdapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_item,
+            R.layout.service_spinner_item,
             services
         )
 
         serviceAdapter.setDropDownViewResource(
-            android.R.layout.simple_spinner_dropdown_item
+            R.layout.service_spinner_dropdown
         )
 
         serviceSpinner.adapter = serviceAdapter
 
-        // Preselect service if customer came
-        // from a Cleaning or Construction page.
+        // Automatically select service if the user
+        // came from Cleaning or Construction details.
         val selectedService =
             arguments?.getString("service")
 
-        if (selectedService == "Construction") {
-            serviceSpinner.setSelection(1)
-        } else {
-            serviceSpinner.setSelection(0)
-        }
+        serviceSpinner.setSelection(
+            if (selectedService == "Construction") 1 else 0
+        )
 
-        // -----------------------------------
-        // SECTION 3: Preferred date picker
-        // -----------------------------------
+        // ============================================
+        // 5. PREFERRED DATE PICKER
+        // ============================================
+
+        // The XML now uses a separate date label.
+        // There is only one hint inside the field.
 
         dateInput.setOnClickListener {
 
@@ -181,7 +195,6 @@ class BookingsFragment : Fragment() {
 
                 { _, year, month, day ->
 
-                    // Firestore uses yyyy-MM-dd format.
                     val selectedDate = String.format(
                         Locale.US,
                         "%04d-%02d-%02d",
@@ -198,8 +211,8 @@ class BookingsFragment : Fragment() {
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
 
-            // Do not allow past dates.
-            val startOfToday = Calendar.getInstance().apply {
+            // Prevent selecting dates before today.
+            val today = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0)
@@ -207,14 +220,14 @@ class BookingsFragment : Fragment() {
             }
 
             datePicker.datePicker.minDate =
-                startOfToday.timeInMillis
+                today.timeInMillis
 
             datePicker.show()
         }
 
-        // -----------------------------------
-        // SECTION 4: Submit a booking
-        // -----------------------------------
+        // ============================================
+        // 6. SUBMIT BOOKING
+        // ============================================
 
         submitButton.setOnClickListener {
 
@@ -230,47 +243,49 @@ class BookingsFragment : Fragment() {
             val customerAddress =
                 addressInput.text.toString().trim()
 
-            val service =
+            val selectedBookingService =
                 serviceSpinner.selectedItem.toString()
 
             val preferredDate =
                 dateInput.text.toString().trim()
 
-            // Create a BookingRequest object
-            // using the Phase 3 data class.
             val booking = BookingRequest(
                 name = customerName,
                 email = customerEmail,
                 phone = customerPhone,
                 address = customerAddress,
-                service = service,
+                service = selectedBookingService,
                 preferredDate = preferredDate
             )
 
-            // Validate each field.
             when {
 
                 !Validation.name(customerName) -> {
+
                     nameInput.error =
                         "Enter your full name"
                 }
 
                 !Validation.email(customerEmail) -> {
+
                     emailInput.error =
                         "Enter a valid email address"
                 }
 
                 !Validation.phone(customerPhone) -> {
+
                     phoneInput.error =
                         "Enter a valid phone number"
                 }
 
                 !Validation.address(customerAddress) -> {
+
                     addressInput.error =
-                        "Enter the service address"
+                        "Enter a valid service address"
                 }
 
                 preferredDate.isBlank() -> {
+
                     dateInput.error =
                         "Please select a date"
 
@@ -280,6 +295,7 @@ class BookingsFragment : Fragment() {
                 }
 
                 !booking.isValid() -> {
+
                     showMessage(
                         "Please check your booking information"
                     )
@@ -287,20 +303,18 @@ class BookingsFragment : Fragment() {
 
                 else -> {
 
-                    // Disable repeated submissions.
                     submitButton.isEnabled = false
 
                     bookingMessage.text =
                         "Submitting your booking..."
 
-                    // Convert booking to Firestore data.
-                    val bookingData = booking.toFirestoreMap(
-                        userId = user.uid,
-                        serverTimestamp =
-                            FieldValue.serverTimestamp()
-                    )
+                    val bookingData =
+                        booking.toFirestoreMap(
+                            userId = user.uid,
+                            serverTimestamp =
+                                FieldValue.serverTimestamp()
+                        )
 
-                    // Create a new booking document.
                     FirebaseGate.db()
                         .collection("bookings")
                         .add(bookingData)
@@ -314,18 +328,18 @@ class BookingsFragment : Fragment() {
 
                             if (task.isSuccessful) {
 
-                                val bookingId =
-                                    task.result.id
+                                val bookingReference =
+                                    task.result.id.take(8)
 
                                 bookingMessage.text =
                                     "Booking submitted successfully!"
 
                                 showMessage(
-                                    "Booking reference: " +
-                                            bookingId.take(8)
+                                    "Booking reference: $bookingReference"
                                 )
 
-                                // Clear only booking-specific inputs.
+                                // Keep customer details.
+                                // Clear booking-specific fields.
                                 addressInput.setText("")
                                 dateInput.setText("")
 
@@ -345,13 +359,16 @@ class BookingsFragment : Fragment() {
             }
         }
 
-        // -----------------------------------
-        // SECTION 5: Booking history
-        // -----------------------------------
+        // ============================================
+        // 7. LOAD BOOKING HISTORY FROM FIRESTORE
+        // ============================================
 
         bookingsListener = FirebaseGate.db()
             .collection("bookings")
-            .whereEqualTo("userId", user.uid)
+            .whereEqualTo(
+                "userId",
+                user.uid
+            )
             .addSnapshotListener { snapshot, error ->
 
                 if (!isAdded || view !== root) {
@@ -360,68 +377,455 @@ class BookingsFragment : Fragment() {
 
                 if (error != null) {
 
-                    bookingHistory.text =
+                    showHistoryMessage(
+                        historyContainer,
                         "Could not load your bookings."
+                    )
 
                     return@addSnapshotListener
                 }
 
-                val bookings = snapshot
-                    ?.documents
-                    .orEmpty()
-                    .sortedByDescending { document ->
-                        document.getTimestamp("createdAt")
-                            ?.seconds ?: 0L
-                    }
+                val bookings =
+                    snapshot?.documents
+                        .orEmpty()
+                        .sortedByDescending { document ->
 
-                if (bookings.isEmpty()) {
-
-                    bookingHistory.text =
-                        "You haven't submitted any bookings yet."
-
-                } else {
-
-                    val historyText =
-                        bookings.joinToString("\n\n") { document ->
-
-                            val serviceName =
-                                document.getString("service")
-                                    ?: "Unknown"
-
-                            val preferredDate =
-                                document.getString("preferredDate")
-                                    ?: "-"
-
-                            val status =
-                                document.getString("status")
-                                    ?: "Pending"
-
-                            val reference =
-                                document.id.take(8)
-
-                            "Booking: $reference\n" +
-                                    "Service: $serviceName\n" +
-                                    "Date: $preferredDate\n" +
-                                    "Status: $status"
+                            document
+                                .getTimestamp("createdAt")
+                                ?.seconds ?: 0L
                         }
 
-                    bookingHistory.text = historyText
-                }
+                renderBookingHistory(
+                    historyContainer,
+                    bookings
+                )
             }
 
         return root
     }
 
-    // Stop listening when leaving the page.
-    override fun onDestroyView() {
+    // ============================================
+    // 8. DISPLAY BOOKING HISTORY CARDS
+    // ============================================
 
-        bookingsListener?.remove()
-        bookingsListener = null
+    private fun renderBookingHistory(
+        container: LinearLayout,
+        bookings: List<DocumentSnapshot>
+    ) {
 
-        super.onDestroyView()
+        container.removeAllViews()
+
+        if (bookings.isEmpty()) {
+
+            showHistoryMessage(
+                container,
+                "No booking requests yet.\nYour bookings will appear here."
+            )
+
+            return
+        }
+
+        bookings.forEach { document ->
+
+            val bookingCard =
+                createBookingCard(document)
+
+            container.addView(bookingCard)
+        }
     }
 
-    private fun showMessage(message: String) {
+    // ============================================
+    // 9. CREATE INDIVIDUAL BOOKING CARD
+    // ============================================
+
+    private fun createBookingCard(
+        document: DocumentSnapshot
+    ): MaterialCardView {
+
+        val bookingService =
+            document.getString("service")
+                ?: "Service Request"
+
+        val bookingStatus =
+            document.getString("status")
+                ?: "Pending"
+
+        val preferredDate =
+            document.getString("preferredDate")
+                ?: "-"
+
+        val bookingReference =
+            document.id.take(8)
+
+        // Card background.
+        val card = MaterialCardView(
+            requireContext()
+        ).apply {
+
+            radius = dp(18).toFloat()
+
+            cardElevation = dp(2).toFloat()
+
+            setCardBackgroundColor(
+                Color.WHITE
+            )
+
+            strokeColor =
+                Color.parseColor("#E6E9ED")
+
+            strokeWidth = dp(1)
+        }
+
+        card.layoutParams =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+
+                bottomMargin = dp(14)
+            }
+
+        // Content inside card.
+        val content = LinearLayout(
+            requireContext()
+        ).apply {
+
+            orientation = LinearLayout.VERTICAL
+
+            setPadding(
+                dp(18),
+                dp(18),
+                dp(18),
+                dp(18)
+            )
+        }
+
+        card.addView(content)
+
+        // =====================================
+        // CARD HEADER
+        // =====================================
+
+        val header = LinearLayout(
+            requireContext()
+        ).apply {
+
+            orientation = LinearLayout.HORIZONTAL
+
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        content.addView(header)
+
+        // Service title.
+        val serviceTitle = TextView(
+            requireContext()
+        ).apply {
+
+            text = bookingService
+
+            textSize = 17f
+
+            setTypeface(
+                null,
+                Typeface.BOLD
+            )
+
+            setTextColor(
+                Color.parseColor("#24292F")
+            )
+        }
+
+        header.addView(
+            serviceTitle,
+            LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+        )
+
+        // Booking status badge.
+        val statusBadge =
+            createStatusBadge(bookingStatus)
+
+        header.addView(statusBadge)
+
+        // Booking reference.
+        val referenceText = createText(
+            "Booking #$bookingReference",
+            13f,
+            "#76808B"
+        ).apply {
+
+            setPadding(
+                0,
+                dp(10),
+                0,
+                0
+            )
+        }
+
+        content.addView(referenceText)
+
+        // =====================================
+        // DIVIDER
+        // =====================================
+
+        val divider = View(
+            requireContext()
+        ).apply {
+
+            setBackgroundColor(
+                Color.parseColor("#EAECEF")
+            )
+        }
+
+        content.addView(
+            divider,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(1)
+            ).apply {
+
+                topMargin = dp(14)
+                bottomMargin = dp(12)
+            }
+        )
+
+        // Preferred date label.
+        val dateLabel = createText(
+            "Preferred Date",
+            12f,
+            "#76808B"
+        )
+
+        content.addView(dateLabel)
+
+        // Preferred date value.
+        val dateValue = createText(
+            preferredDate,
+            15f,
+            "#24292F"
+        ).apply {
+
+            setTypeface(
+                null,
+                Typeface.BOLD
+            )
+
+            setPadding(
+                0,
+                dp(4),
+                0,
+                0
+            )
+        }
+
+        content.addView(dateValue)
+
+        // =====================================
+        // STATUS DESCRIPTION
+        // =====================================
+
+        val statusDescription = when (bookingStatus) {
+
+            "Approved" ->
+                "Your booking has been approved."
+
+            "Rejected" ->
+                "Your booking request was declined."
+
+            "Completed" ->
+                "This service request has been completed."
+
+            else ->
+                "Your booking is awaiting review."
+        }
+
+        val descriptionText = createText(
+            statusDescription,
+            13f,
+            "#68717D"
+        ).apply {
+
+            setPadding(
+                0,
+                dp(12),
+                0,
+                0
+            )
+        }
+
+        content.addView(descriptionText)
+
+        return card
+    }
+
+    // ============================================
+    // 10. CREATE COLOURED STATUS BADGE
+    // ============================================
+
+    private fun createStatusBadge(
+        status: String
+    ): TextView {
+
+        val badgeBackgroundColor = when (status) {
+
+            "Approved" -> "#E4F4E8"
+
+            "Rejected" -> "#FCE8E8"
+
+            "Completed" -> "#E6EEFF"
+
+            else -> "#FFF3D9"
+        }
+
+        val badgeTextColor = when (status) {
+
+            "Approved" -> "#217A3C"
+
+            "Rejected" -> "#B42318"
+
+            "Completed" -> "#2858B8"
+
+            else -> "#996300"
+        }
+
+        val badgeDrawable =
+            GradientDrawable().apply {
+
+                cornerRadius =
+                    dp(30).toFloat()
+
+                setColor(
+                    Color.parseColor(
+                        badgeBackgroundColor
+                    )
+                )
+            }
+
+        return TextView(
+            requireContext()
+        ).apply {
+
+            text = status
+
+            textSize = 12f
+
+            setTypeface(
+                null,
+                Typeface.BOLD
+            )
+
+            setTextColor(
+                Color.parseColor(
+                    badgeTextColor
+                )
+            )
+
+            setPadding(
+                dp(11),
+                dp(7),
+                dp(11),
+                dp(7)
+            )
+
+            setBackground(badgeDrawable)
+        }
+    }
+
+    // ============================================
+    // 11. HELPER FOR TEXT ELEMENTS
+    // ============================================
+
+    private fun createText(
+        value: String,
+        size: Float,
+        textColor: String
+    ): TextView {
+
+        return TextView(
+            requireContext()
+        ).apply {
+
+            text = value
+
+            textSize = size
+
+            setTextColor(
+                Color.parseColor(textColor)
+            )
+        }
+    }
+
+    // ============================================
+    // 12. EMPTY / ERROR HISTORY MESSAGE
+    // ============================================
+
+    private fun showHistoryMessage(
+        container: LinearLayout,
+        message: String
+    ) {
+
+        container.removeAllViews()
+
+        val card = MaterialCardView(
+            requireContext()
+        ).apply {
+
+            radius = dp(16).toFloat()
+
+            setCardBackgroundColor(
+                Color.WHITE
+            )
+        }
+
+        val messageText = TextView(
+            requireContext()
+        ).apply {
+
+            text = message
+
+            textSize = 14f
+
+            setTextColor(
+                Color.parseColor("#68717D")
+            )
+
+            gravity = Gravity.CENTER
+
+            setPadding(
+                dp(18),
+                dp(30),
+                dp(18),
+                dp(30)
+            )
+        }
+
+        card.addView(messageText)
+
+        container.addView(card)
+    }
+
+    // ============================================
+    // 13. CONVERT DP TO PIXELS
+    // ============================================
+
+    private fun dp(value: Int): Int {
+
+        return (
+                value * resources.displayMetrics.density
+                ).toInt()
+    }
+
+    // ============================================
+    // 14. SHOW TOAST MESSAGE
+    // ============================================
+
+    private fun showMessage(
+        message: String
+    ) {
 
         if (!isAdded) return
 
@@ -430,5 +834,18 @@ class BookingsFragment : Fragment() {
             message,
             Toast.LENGTH_LONG
         ).show()
+    }
+
+    // ============================================
+    // 15. CLEAN UP FIRESTORE LISTENER
+    // ============================================
+
+    override fun onDestroyView() {
+
+        bookingsListener?.remove()
+
+        bookingsListener = null
+
+        super.onDestroyView()
     }
 }

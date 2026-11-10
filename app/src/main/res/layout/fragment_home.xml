@@ -1,34 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- ROOT ELEMENT: ScrollView -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3F3F3">
+    android:background="#F4F5F7"
+    android:fillViewport="true"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="130dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Our Packages"
-            android:textColor="#333333"
-            android:textSize="24sp"
+            android:textColor="#24292F"
+            android:textSize="25sp"
             android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="20dp"/>
+            android:layout_marginBottom="6dp" />
 
-        <!-- Package 1: Cleaning -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Explore our cleaning and construction services."
+            android:textColor="#68717D"
+            android:textSize="14sp"
+            android:layout_marginBottom="20dp" />
+
+        <!-- CLEANING CARD -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp">
+            android:layout_marginBottom="18dp"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="3dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -37,50 +50,56 @@
 
                 <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="180dp"
+                    android:layout_height="190dp"
+                    android:src="@drawable/cleaning_chemicals"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/cleaning_chemicals"/>
+                    android:contentDescription="Cleaning Services" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="18dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Nyamatsi Cleaning"
-                        android:textColor="#00BFFF"
+                        android:textColor="#008DBB"
                         android:textSize="20sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="We manufacture household cleaning chemicals and industrial chemicals."
-                        android:textColor="#555555"
-                        android:layout_marginTop="8dp"/>
+                        android:textColor="#59636F"
+                        android:textSize="15sp"
+                        android:lineSpacingExtra="3dp"
+                        android:layout_marginTop="8dp" />
 
-                    <!-- ID ADDED HERE FOR CLICKING -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnViewCleaning"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="View Details"
-                        android:layout_marginTop="12dp"
-                        app:backgroundTint="#00BFFF"/>
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:text="View Cleaning Services"
+                        android:textColor="#FFFFFF"
+                        android:layout_marginTop="16dp"
+                        app:backgroundTint="#008DBB"
+                        app:cornerRadius="12dp" />
+
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Package 2: Construction -->
+        <!-- CONSTRUCTION CARD -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp">
+            android:layout_marginBottom="18dp"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="3dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -89,39 +108,44 @@
 
                 <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="180dp"
+                    android:layout_height="190dp"
+                    android:src="@drawable/house_painting"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/house_painting"/>
+                    android:contentDescription="Construction Services" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="18dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Nyamatsi Construction"
-                        android:textColor="#00BFFF"
+                        android:textColor="#008DBB"
                         android:textSize="20sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="We manufacture supply and apply gamazine plaster paint."
-                        android:textColor="#555555"
-                        android:layout_marginTop="8dp"/>
+                        android:text="We manufacture, supply and apply gamazine plaster paint."
+                        android:textColor="#59636F"
+                        android:textSize="15sp"
+                        android:lineSpacingExtra="3dp"
+                        android:layout_marginTop="8dp" />
 
-                    <!-- ID ADDED HERE FOR CLICKING -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnViewConstruction"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="View Details"
-                        android:layout_marginTop="12dp"
-                        app:backgroundTint="#00BFFF"/>
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:text="View Construction Services"
+                        android:textColor="#FFFFFF"
+                        android:layout_marginTop="16dp"
+                        app:backgroundTint="#008DBB"
+                        app:cornerRadius="12dp" />
+
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

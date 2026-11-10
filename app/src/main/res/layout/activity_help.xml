@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/helpRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F4F5F7">
+
+    <!-- Branded header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#FFFFFF"
+        android:elevation="3dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="64dp"
+            android:src="@drawable/full_logo"
+            android:scaleType="fitCenter"
+            android:contentDescription="Nyamatsi Holdings Logo" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Help &amp; Support"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#24292F" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Everything you need to know about using the app."
+                android:textSize="14sp"
+                android:textColor="#68717D"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="20dp" />
+
+            <LinearLayout
+                android:id="@+id/helpSectionsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBackFromHelp"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="Back to Settings"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="12dp"
+                app:backgroundTint="#333333"
+                app:cornerRadius="14dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

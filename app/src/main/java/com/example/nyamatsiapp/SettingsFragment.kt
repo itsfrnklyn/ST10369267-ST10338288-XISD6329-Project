@@ -1,4 +1,3 @@
-
 package com.example.nyamatsiapp
 
 import android.content.Context
@@ -7,19 +6,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 
+import androidx.appcompat.widget.SwitchCompat
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.credentials.CredentialManager
-import androidx.credentials.ClearCredentialStateRequest
 
 import com.google.android.material.button.MaterialButton
-import androidx.appcompat.widget.SwitchCompat
 import com.google.android.material.textfield.TextInputEditText
-
-import android.widget.TextView
-
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.SetOptions
 
@@ -39,26 +36,22 @@ class SettingsFragment : Fragment() {
             false
         )
 
-        // ========================================
-        // 1. GET AUTHENTICATED CUSTOMER
-        // ========================================
+        // ======================================
+        // 1. AUTHENTICATED USER
+        // ======================================
 
         val user = FirebaseGate.auth().currentUser
 
         if (user == null) {
 
-            Toast.makeText(
-                requireContext(),
-                "Please log in to access settings",
-                Toast.LENGTH_LONG
-            ).show()
+            showMessage("Please log in to access Settings")
 
             return root
         }
 
-        // ========================================
-        // 2. CONNECT XML ELEMENTS
-        // ========================================
+        // ======================================
+        // 2. CONNECT UI ELEMENTS
+        // ======================================
 
         val firstNameInput =
             root.findViewById<TextInputEditText>(
@@ -85,21 +78,20 @@ class SettingsFragment : Fragment() {
                 R.id.btnSaveSettings
             )
 
-
         val notificationsSwitch =
             root.findViewById<SwitchCompat>(
                 R.id.switchNotifications
             )
 
-
+        val changePasswordButton =
+            root.findViewById<MaterialButton>(
+                R.id.btnChangePassword
+            )
 
         val adminButton =
             root.findViewById<MaterialButton>(
                 R.id.btnAdminDashboard
             )
-
-        adminButton.visibility = View.GONE
-
 
         val helpButton =
             root.findViewById<MaterialButton>(
@@ -111,9 +103,11 @@ class SettingsFragment : Fragment() {
                 R.id.btnLogout
             )
 
-        // ========================================
+        adminButton.visibility = View.GONE
+
+        // ======================================
         // 3. DISPLAY ACCOUNT INFORMATION
-        // ========================================
+        // ======================================
 
         emailText.text =
             "Signed in as: ${user.email ?: "Google account"}"
@@ -131,9 +125,9 @@ class SettingsFragment : Fragment() {
             authNameParts.getOrElse(1) { "" }
         )
 
-        // ========================================
+        // ======================================
         // 4. LOAD PROFILE FROM FIRESTORE
-        // ========================================
+        // ======================================
 
         val profileReference =
             FirebaseGate.db()
@@ -143,10 +137,10 @@ class SettingsFragment : Fragment() {
         saveButton.isEnabled = false
 
         profileReference.get()
-            .addOnCompleteListener { task ->
+            .addOnCompleteListener profileLoad@{ task ->
 
                 if (!isAdded || view !== root) {
-                    return@addOnCompleteListener
+                    return@profileLoad
                 }
 
                 saveButton.isEnabled = true
@@ -159,12 +153,14 @@ class SettingsFragment : Fragment() {
 
                         firstNameInput.setText(
                             document.getString("firstName")
-                                ?: firstNameInput.text?.toString().orEmpty()
+                                ?: firstNameInput.text
+                                    ?.toString().orEmpty()
                         )
 
                         lastNameInput.setText(
                             document.getString("lastName")
-                                ?: lastNameInput.text?.toString().orEmpty()
+                                ?: lastNameInput.text
+                                    ?.toString().orEmpty()
                         )
 
                         phoneInput.setText(
@@ -180,9 +176,9 @@ class SettingsFragment : Fragment() {
                 }
             }
 
-        // ========================================
-        // 5. SAVE PROFILE CHANGES
-        // ========================================
+        // ======================================
+        // 5. SAVE PROFILE
+        // ======================================
 
         saveButton.setOnClickListener {
 
@@ -232,8 +228,6 @@ class SettingsFragment : Fragment() {
                     val fullName =
                         "$firstName $lastName"
 
-                    // The UID and account email
-                    // cannot be edited from Settings.
                     val profileUpdates = mapOf(
                         "userId" to user.uid,
                         "email" to user.email.orEmpty(),
@@ -243,17 +237,15 @@ class SettingsFragment : Fragment() {
                         "phone" to phone
                     )
 
-                    // Merge updates so that fields
-                    // such as createdAt are retained.
                     profileReference
                         .set(
                             profileUpdates,
                             SetOptions.merge()
                         )
-                        .addOnCompleteListener { saveTask ->
+                        .addOnCompleteListener profileSave@{ saveTask ->
 
                             if (!isAdded || view !== root) {
-                                return@addOnCompleteListener
+                                return@profileSave
                             }
 
                             if (!saveTask.isSuccessful) {
@@ -264,21 +256,19 @@ class SettingsFragment : Fragment() {
                                     "Could not save your profile"
                                 )
 
-                                return@addOnCompleteListener
+                                return@profileSave
                             }
 
-                            // Also update the name stored
-                            // in Firebase Authentication.
                             val authProfile =
                                 UserProfileChangeRequest.Builder()
                                     .setDisplayName(fullName)
                                     .build()
 
                             user.updateProfile(authProfile)
-                                .addOnCompleteListener { authTask ->
+                                .addOnCompleteListener authUpdate@{ authTask ->
 
                                     if (!isAdded || view !== root) {
-                                        return@addOnCompleteListener
+                                        return@authUpdate
                                     }
 
                                     saveButton.isEnabled = true
@@ -292,9 +282,8 @@ class SettingsFragment : Fragment() {
                                     } else {
 
                                         showMessage(
-                                            "Profile saved in Firestore, " +
-                                                    "but account display name " +
-                                                    "could not be updated"
+                                            "Profile saved, but the account " +
+                                                    "display name was not updated"
                                         )
                                     }
                                 }
@@ -303,9 +292,9 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        // ========================================
-        // 6. SAVE APP PREFERENCES
-        // ========================================
+        // ======================================
+        // 6. NOTIFICATION PREFERENCES
+        // ======================================
 
         val sharedPreferences =
             requireContext().getSharedPreferences(
@@ -330,14 +319,24 @@ class SettingsFragment : Fragment() {
                 .apply()
         }
 
+        // ======================================
+        // 7. CHANGE PASSWORD
+        // ======================================
 
+        changePasswordButton.setOnClickListener {
 
-// ========================================
-// ADMIN DASHBOARD ACCESS
-// ========================================
+            val intent = Intent(
+                requireContext(),
+                ChangePasswordActivity::class.java
+            )
 
-// Check whether the signed-in customer
-// has an active administrator record.
+            startActivity(intent)
+        }
+
+        // ======================================
+        // 8. ADMIN DASHBOARD
+        // ======================================
+
         FirebaseGate.db()
             .collection("admins")
             .document(user.uid)
@@ -353,7 +352,11 @@ class SettingsFragment : Fragment() {
                             adminDocument.getBoolean("active") == true
 
                 adminButton.visibility =
-                    if (isAdmin) View.VISIBLE else View.GONE
+                    if (isAdmin) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
             }
             .addOnFailureListener {
 
@@ -362,46 +365,40 @@ class SettingsFragment : Fragment() {
                 }
             }
 
-// Open the administrator dashboard.
         adminButton.setOnClickListener {
 
-            val intent = Intent(
-                requireContext(),
-                AdminBookingsActivity::class.java
+            startActivity(
+                Intent(
+                    requireContext(),
+                    AdminBookingsActivity::class.java
+                )
             )
-
-            startActivity(intent)
         }
 
-
-
-        // ========================================
-        // 7. OPEN HELP AND SUPPORT
-        // ========================================
+        // ======================================
+        // 9. HELP AND SUPPORT
+        // ======================================
 
         helpButton.setOnClickListener {
 
-            val intent = Intent(
-                requireContext(),
-                HelpActivity::class.java
+            startActivity(
+                Intent(
+                    requireContext(),
+                    HelpActivity::class.java
+                )
             )
-
-            startActivity(intent)
         }
 
-        // ========================================
-        // 8. LOG OUT OF FIREBASE
-        // ========================================
+        // ======================================
+        // 10. LOG OUT
+        // ======================================
 
         logoutButton.setOnClickListener {
 
             logoutButton.isEnabled = false
 
-            // End the Firebase Authentication session.
             FirebaseGate.auth().signOut()
 
-            // Clear Credential Manager's session
-            // to avoid retaining account selection state.
             lifecycleScope.launch {
 
                 try {
@@ -414,24 +411,24 @@ class SettingsFragment : Fragment() {
 
                 } catch (_: Exception) {
 
-                    // Firebase has already been signed out.
+                    // Firebase is already signed out.
                 }
 
                 if (isAdded) {
 
                     showMessage("Logged out successfully")
 
-                    // Clear the activity back stack.
-                    val intent = Intent(
+                    val loginIntent = Intent(
                         requireContext(),
                         LoginActivity::class.java
-                    )
+                    ).apply {
 
-                    intent.flags =
-                        Intent.FLAG_ACTIVITY_NEW_TASK or
-                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
 
-                    startActivity(intent)
+                    startActivity(loginIntent)
 
                     requireActivity().finish()
                 }

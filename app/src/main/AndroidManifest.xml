@@ -60,6 +60,18 @@
         <activity
             android:name=".AdminBookingsActivity"
             android:exported="false" />
+
+
+        <!-- CHANGE PASSWORD -->
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:exported="false" />
+
+
+        <!-- ADMIN USER MANAGEMENT -->
+        <activity
+            android:name=".AdminUsersActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

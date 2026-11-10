@@ -1,10 +1,13 @@
 package com.example.nyamatsiapp
 
 import android.app.AlertDialog
+import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -12,6 +15,7 @@ import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatActivity
 
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
@@ -19,19 +23,32 @@ import com.google.firebase.firestore.Source
 
 class AdminBookingsActivity : AppCompatActivity() {
 
-    private lateinit var bookingsContainer: LinearLayout
-    private lateinit var summaryText: TextView
-
-    private var bookingListener: ListenerRegistration? = null
-
     private val database by lazy {
         FirebaseGate.db()
     }
 
+    private var bookingListener: ListenerRegistration? = null
+    private var userListener: ListenerRegistration? = null
+
+    private lateinit var bookingsContainer: LinearLayout
+    private lateinit var statsContainer: LinearLayout
+    private lateinit var statusText: TextView
+    private lateinit var manageUsersButton: MaterialButton
+
+    private var bookings: List<DocumentSnapshot> = emptyList()
+    private var totalUsers = 0
+    private var usersLoaded = false
+    private var bookingsLoaded = false
+
+    private val navy = Color.rgb(0, 59, 112)
+    private val cyan = Color.rgb(0, 141, 187)
+    private val dark = Color.rgb(36, 41, 47)
+    private val muted = Color.rgb(104, 113, 125)
+    private val pageBackground = Color.rgb(244, 245, 247)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Check whether a Firebase user is signed in.
         val currentUser = FirebaseGate.auth().currentUser
 
         if (currentUser == null) {
@@ -41,45 +58,36 @@ class AdminBookingsActivity : AppCompatActivity() {
 
         buildScreen()
 
-        summaryText.text = "Checking administrator access..."
+        statusText.text = "Checking administrator access..."
 
-        // Read from the server to avoid accepting a
-        // potentially outdated cached administrator role.
         database.collection("admins")
             .document(currentUser.uid)
             .get(Source.SERVER)
-            .addOnSuccessListener { document ->
+            .addOnSuccessListener { admin ->
 
                 if (isFinishing || isDestroyed) {
                     return@addOnSuccessListener
                 }
 
                 if (
-                    !document.exists() ||
-                    document.getBoolean("active") != true
+                    !admin.exists() ||
+                    admin.getBoolean("active") != true
                 ) {
-                    Toast.makeText(
-                        this,
-                        "Administrator access denied",
-                        Toast.LENGTH_LONG
-                    ).show()
-
+                    toast("Administrator access denied")
                     finish()
                     return@addOnSuccessListener
                 }
 
-                summaryText.text = "Loading bookings..."
-                loadBookings()
+                manageUsersButton.isEnabled = true
+                statusText.text = "Loading dashboard..."
+
+                listenForUsers()
+                listenForBookings()
             }
             .addOnFailureListener {
 
                 if (!isFinishing && !isDestroyed) {
-                    Toast.makeText(
-                        this,
-                        "Could not verify administrator access",
-                        Toast.LENGTH_LONG
-                    ).show()
-
+                    toast("Could not verify administrator access")
                     finish()
                 }
             }
@@ -87,67 +95,231 @@ class AdminBookingsActivity : AppCompatActivity() {
 
     private fun buildScreen() {
 
-        val scrollView = ScrollView(this).apply {
-            setBackgroundColor(Color.rgb(243, 243, 243))
-            isFillViewport = true
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(pageBackground)
         }
 
-        val mainLayout = LinearLayout(this).apply {
+        // =====================================
+        // NYAMATSI HEADER
+        // =====================================
+
+        val header = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            gravity = android.view.Gravity.CENTER
+            setBackgroundColor(Color.WHITE)
+
             setPadding(
-                dp(18), dp(20),
-                dp(18), dp(24)
+                dp(16), dp(10),
+                dp(16), dp(10)
+            )
+
+            elevation = dp(3).toFloat()
+        }
+
+        val logo = ImageView(this).apply {
+            setImageResource(R.drawable.full_logo)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            contentDescription = "Nyamatsi Holdings Logo"
+        }
+
+        header.addView(
+            logo,
+            LinearLayout.LayoutParams(
+                dp(150),
+                dp(64)
+            )
+        )
+
+        root.addView(
+            header,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        // =====================================
+        // SCROLLABLE DASHBOARD
+        // =====================================
+
+        val scroll = ScrollView(this).apply {
+            isFillViewport = true
+            clipToPadding = false
+        }
+
+        root.addView(
+            scroll,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        )
+
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+
+            setPadding(
+                dp(18), dp(24),
+                dp(18), dp(40)
             )
         }
 
-        scrollView.addView(mainLayout)
+        scroll.addView(content)
 
-        val heading = TextView(this).apply {
-            text = "Admin Booking Management"
-            textSize = 24f
-            setTextColor(Color.rgb(45, 45, 45))
-            setTypeface(null, 1)
+        content.addView(
+            createText(
+                "Admin Dashboard",
+                26f,
+                dark,
+                true
+            )
+        )
+
+        content.addView(
+            createText(
+                "Nyamatsi Holdings • Management overview",
+                14f,
+                muted,
+                false
+            ).apply {
+                setPadding(0, dp(6), 0, dp(20))
+            }
+        )
+
+        val backButton = createButton(
+            "Back to Application",
+            dark
+        )
+
+        content.addView(backButton)
+
+        backButton.setOnClickListener {
+            finish()
         }
 
-        mainLayout.addView(heading)
-
-        val description = TextView(this).apply {
-            text = "Review and manage customer service requests"
-            textSize = 14f
-            setTextColor(Color.DKGRAY)
-            setPadding(0, dp(8), 0, dp(12))
+        statusText = createText(
+            "Loading...",
+            14f,
+            muted,
+            false
+        ).apply {
+            setPadding(0, dp(22), 0, dp(16))
         }
 
-        mainLayout.addView(description)
+        content.addView(statusText)
 
-        val backButton = Button(this).apply {
-            text = "Back to Application"
+        // =====================================
+        // STATISTIC CARDS
+        // =====================================
+
+        statsContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+
+        content.addView(statsContainer)
+
+        // =====================================
+        // MANAGE USERS
+        // =====================================
+
+        manageUsersButton = createButton(
+            "View Registered Users",
+            navy
+        ).apply {
+            isEnabled = false
+
             setOnClickListener {
-                finish()
+                startActivity(
+                    Intent(
+                        this@AdminBookingsActivity,
+                        AdminUsersActivity::class.java
+                    )
+                )
             }
         }
 
-        mainLayout.addView(backButton)
+        content.addView(
+            manageUsersButton,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(54)
+            ).apply {
+                topMargin = dp(16)
+                bottomMargin = dp(28)
+            }
+        )
 
-        summaryText = TextView(this).apply {
-            text = "Loading..."
-            textSize = 15f
-            setTextColor(Color.DKGRAY)
-            setPadding(0, dp(20), 0, dp(14))
-        }
+        // =====================================
+        // BOOKING MANAGEMENT
+        // =====================================
 
-        mainLayout.addView(summaryText)
+        content.addView(
+            createText(
+                "Booking Management",
+                22f,
+                dark,
+                true
+            )
+        )
+
+        content.addView(
+            createText(
+                "Review and update customer service requests.",
+                14f,
+                muted,
+                false
+            ).apply {
+                setPadding(0, dp(8), 0, dp(18))
+            }
+        )
 
         bookingsContainer = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
 
-        mainLayout.addView(bookingsContainer)
+        content.addView(bookingsContainer)
 
-        setContentView(scrollView)
+        setContentView(root)
+
+        // Fix notch, status-bar and navigation-bar overlap.
+        ScreenInsets.apply(this, root)
+
+        renderStatistics()
     }
 
-    private fun loadBookings() {
+    private fun listenForUsers() {
+
+        userListener?.remove()
+
+        userListener = database
+            .collection("users")
+            .addSnapshotListener { snapshot, error ->
+
+                if (isFinishing || isDestroyed) {
+                    return@addSnapshotListener
+                }
+
+                if (error != null) {
+                    usersLoaded = false
+
+                    statusText.text =
+                        "Unable to load user statistics"
+
+                    renderStatistics()
+                    return@addSnapshotListener
+                }
+
+                totalUsers = snapshot?.size() ?: 0
+                usersLoaded = true
+
+                renderStatistics()
+                updateStatus()
+            }
+    }
+
+    private fun listenForBookings() {
 
         bookingListener?.remove()
 
@@ -160,167 +332,295 @@ class AdminBookingsActivity : AppCompatActivity() {
                 }
 
                 if (error != null) {
-                    summaryText.text =
-                        "Unable to load bookings: ${error.localizedMessage}"
+                    bookingsLoaded = false
+
+                    statusText.text =
+                        "Unable to load booking information"
+
                     bookingsContainer.removeAllViews()
+                    renderStatistics()
                     return@addSnapshotListener
                 }
 
-                val bookings = snapshot
-                    ?.documents
+                bookings = snapshot?.documents
                     .orEmpty()
                     .sortedByDescending {
                         it.getTimestamp("createdAt")
                             ?.seconds ?: 0L
                     }
 
-                showBookings(bookings)
+                bookingsLoaded = true
+
+                renderStatistics()
+                renderBookings()
+                updateStatus()
             }
     }
 
-    private fun showBookings(
-        bookings: List<DocumentSnapshot>
-    ) {
+    private fun updateStatus() {
+
+        if (usersLoaded && bookingsLoaded) {
+            statusText.text = "Dashboard updated"
+        }
+    }
+
+    private fun renderStatistics() {
+
+        statsContainer.removeAllViews()
+
+        val values = listOf(
+            "Registered Users" to
+                    if (usersLoaded) "$totalUsers" else "—",
+
+            "Total Bookings" to
+                    if (bookingsLoaded) "${bookings.size}" else "—",
+
+            "Pending" to countBookings("Pending"),
+            "Approved" to countBookings("Approved"),
+            "Completed" to countBookings("Completed"),
+            "Rejected" to countBookings("Rejected")
+        )
+
+        for (rowIndex in 0 until 3) {
+
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+            }
+
+            statsContainer.addView(row)
+
+            for (columnIndex in 0 until 2) {
+
+                val statistic = values[
+                    rowIndex * 2 + columnIndex
+                ]
+
+                val card = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+
+                    setPadding(
+                        dp(16), dp(18),
+                        dp(16), dp(18)
+                    )
+
+                    background = createBackground(
+                        Color.WHITE,
+                        18,
+                        Color.rgb(224, 229, 235)
+                    )
+                }
+
+                row.addView(
+                    card,
+                    LinearLayout.LayoutParams(
+                        0,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        1f
+                    ).apply {
+                        bottomMargin = dp(12)
+
+                        if (columnIndex == 0) {
+                            rightMargin = dp(6)
+                        } else {
+                            leftMargin = dp(6)
+                        }
+                    }
+                )
+
+                card.addView(
+                    createText(
+                        statistic.first,
+                        13f,
+                        muted,
+                        false
+                    )
+                )
+
+                card.addView(
+                    createText(
+                        statistic.second,
+                        27f,
+                        navy,
+                        true
+                    ).apply {
+                        setPadding(0, dp(12), 0, 0)
+                    }
+                )
+            }
+        }
+    }
+
+    private fun countBookings(status: String): String {
+
+        if (!bookingsLoaded) {
+            return "—"
+        }
+
+        return bookings.count {
+            it.getString("status")
+                ?.equals(status, ignoreCase = true) == true
+        }.toString()
+    }
+
+    private fun renderBookings() {
 
         bookingsContainer.removeAllViews()
 
-        val pending = bookings.count {
-            it.getString("status") == "Pending"
-        }
-
-        val approved = bookings.count {
-            it.getString("status") == "Approved"
-        }
-
-        val completed = bookings.count {
-            it.getString("status") == "Completed"
-        }
-
-        val rejected = bookings.count {
-            it.getString("status") == "Rejected"
-        }
-
-        summaryText.text =
-            "Total: ${bookings.size}  |  Pending: $pending\n" +
-                    "Approved: $approved  |  Completed: $completed\n" +
-                    "Rejected: $rejected"
-
         if (bookings.isEmpty()) {
 
-            val emptyText = TextView(this).apply {
-                text = "No customer bookings available."
-                textSize = 16f
-                setTextColor(Color.DKGRAY)
-            }
+            bookingsContainer.addView(
+                createText(
+                    "No customer bookings available.",
+                    15f,
+                    muted,
+                    false
+                )
+            )
 
-            bookingsContainer.addView(emptyText)
             return
         }
 
-        bookings.forEach { document ->
-            addBookingCard(document)
+        bookings.forEach { booking ->
+            addBookingCard(booking)
         }
     }
 
     private fun addBookingCard(
-        document: DocumentSnapshot
+        booking: DocumentSnapshot
     ) {
 
         val status =
-            document.getString("status") ?: "Pending"
+            booking.getString("status") ?: "Pending"
 
-        val customerName =
-            document.getString("name") ?: "Unknown"
+        val name =
+            booking.getString("name") ?: "Unknown Customer"
 
         val email =
-            document.getString("email") ?: "-"
+            booking.getString("email") ?: "-"
 
         val phone =
-            document.getString("phone") ?: "-"
+            booking.getString("phone") ?: "-"
 
         val address =
-            document.getString("address") ?: "-"
+            booking.getString("address") ?: "-"
 
         val service =
-            document.getString("service") ?: "-"
+            booking.getString("service") ?: "-"
 
         val preferredDate =
-            document.getString("preferredDate") ?: "-"
+            booking.getString("preferredDate") ?: "-"
 
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
 
             setPadding(
-                dp(16), dp(16),
-                dp(16), dp(16)
+                dp(18), dp(20),
+                dp(18), dp(20)
             )
 
-            setBackgroundColor(Color.WHITE)
-
-            elevation = dp(3).toFloat()
+            background = createBackground(
+                Color.WHITE,
+                18,
+                Color.rgb(224, 229, 235)
+            )
         }
 
-        val params = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            bottomMargin = dp(14)
+        bookingsContainer.addView(
+            card,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dp(18)
+            }
+        )
+
+        card.addView(
+            createText(
+                name,
+                19f,
+                dark,
+                true
+            )
+        )
+
+        val statusColor = when (status.lowercase()) {
+            "approved" -> Color.rgb(22, 105, 182)
+            "completed" -> Color.rgb(28, 120, 66)
+            "rejected" -> Color.rgb(180, 40, 40)
+            else -> Color.rgb(161, 105, 13)
         }
 
-        bookingsContainer.addView(card, params)
+        card.addView(
+            createText(
+                "Status: $status",
+                14f,
+                statusColor,
+                true
+            ).apply {
+                setPadding(0, dp(8), 0, dp(14))
+            }
+        )
 
-        val info = TextView(this).apply {
-
-            text =
-                "Booking: ${document.id.take(8)}\n" +
-                        "Customer: $customerName\n" +
+        card.addView(
+            createText(
+                "Reference: ${booking.id.take(8)}\n" +
                         "Email: $email\n" +
                         "Phone: $phone\n" +
-                        "Address: $address\n" +
                         "Service: $service\n" +
-                        "Preferred Date: $preferredDate\n" +
-                        "Status: $status"
+                        "Date: $preferredDate\n" +
+                        "Address: $address",
+                14f,
+                dark,
+                false
+            ).apply {
+                setLineSpacing(
+                    dp(3).toFloat(),
+                    1f
+                )
+                setPadding(0, 0, 0, dp(12))
+            }
+        )
 
-            textSize = 15f
-            setTextColor(Color.rgb(40, 40, 40))
-            setLineSpacing(dp(3).toFloat(), 1f)
-        }
+        when (status.lowercase()) {
 
-        card.addView(info)
+            "pending" -> {
 
-        when (status) {
-
-            "Pending" -> {
-
-                addActionButton(
+                addBookingButton(
                     card,
-                    "Approve Booking"
+                    "Approve Booking",
+                    cyan
                 ) {
-                    confirmStatusChange(
-                        document.id,
+                    confirmBookingUpdate(
+                        booking.id,
+                        "Pending",
                         "Approved"
                     )
                 }
 
-                addActionButton(
+                addBookingButton(
                     card,
-                    "Reject Booking"
+                    "Reject Booking",
+                    Color.rgb(165, 49, 49)
                 ) {
-                    confirmStatusChange(
-                        document.id,
+                    confirmBookingUpdate(
+                        booking.id,
+                        "Pending",
                         "Rejected"
                     )
                 }
             }
 
-            "Approved" -> {
+            "approved" -> {
 
-                addActionButton(
+                addBookingButton(
                     card,
-                    "Mark as Completed"
+                    "Mark as Completed",
+                    Color.rgb(28, 120, 66)
                 ) {
-                    confirmStatusChange(
-                        document.id,
+                    confirmBookingUpdate(
+                        booking.id,
+                        "Approved",
                         "Completed"
                     )
                 }
@@ -328,43 +628,48 @@ class AdminBookingsActivity : AppCompatActivity() {
 
             else -> {
 
-                val finalText = TextView(this).apply {
-                    text = "No further actions available."
-                    textSize = 13f
-                    setTextColor(Color.GRAY)
-                    setPadding(0, dp(10), 0, 0)
-                }
-
-                card.addView(finalText)
+                card.addView(
+                    createText(
+                        "No further actions available.",
+                        13f,
+                        muted,
+                        false
+                    ).apply {
+                        setPadding(0, dp(10), 0, 0)
+                    }
+                )
             }
         }
     }
 
-    private fun addActionButton(
+    // Add proper vertical spacing between action buttons.
+    private fun addBookingButton(
         parent: LinearLayout,
-        title: String,
-        onAction: () -> Unit
+        label: String,
+        color: Int,
+        action: () -> Unit
     ) {
 
-        val button = Button(this).apply {
-            text = title
-            setOnClickListener {
-                onAction()
+        val button = createButton(label, color)
+
+        parent.addView(
+            button,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(54)
+            ).apply {
+                topMargin = dp(12)
             }
-        }
+        )
 
-        val params = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            topMargin = dp(8)
+        button.setOnClickListener {
+            action()
         }
-
-        parent.addView(button, params)
     }
 
-    private fun confirmStatusChange(
+    private fun confirmBookingUpdate(
         bookingId: String,
+        expectedStatus: String,
         newStatus: String
     ) {
 
@@ -376,44 +681,121 @@ class AdminBookingsActivity : AppCompatActivity() {
             )
             .setNegativeButton("Cancel", null)
             .setPositiveButton("Confirm") { _, _ ->
-                updateBookingStatus(
+
+                updateBooking(
                     bookingId,
+                    expectedStatus,
                     newStatus
                 )
             }
             .show()
     }
 
-    private fun updateBookingStatus(
+    private fun updateBooking(
         bookingId: String,
+        expectedStatus: String,
         newStatus: String
     ) {
 
-        database.collection("bookings")
+        val reference = database
+            .collection("bookings")
             .document(bookingId)
-            .update(
+
+        database.runTransaction { transaction ->
+
+            val document = transaction.get(reference)
+
+            if (!document.exists()) {
+                throw IllegalStateException(
+                    "Booking no longer exists"
+                )
+            }
+
+            val currentStatus =
+                document.getString("status") ?: "Pending"
+
+            if (!currentStatus.equals(
+                    expectedStatus,
+                    ignoreCase = true
+                )
+            ) {
+                throw IllegalStateException(
+                    "Booking status has already changed"
+                )
+            }
+
+            transaction.update(
+                reference,
                 mapOf(
                     "status" to newStatus,
                     "updatedAt" to
                             FieldValue.serverTimestamp()
                 )
             )
-            .addOnSuccessListener {
 
-                Toast.makeText(
-                    this,
-                    "Booking updated to $newStatus",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-            .addOnFailureListener { error ->
+            true
 
-                Toast.makeText(
-                    this,
-                    "Update failed: ${error.localizedMessage}",
-                    Toast.LENGTH_LONG
-                ).show()
+        }.addOnSuccessListener {
+
+            toast("Booking updated to $newStatus")
+
+        }.addOnFailureListener { error ->
+
+            toast(
+                error.localizedMessage
+                    ?: "Unable to update booking"
+            )
+        }
+    }
+
+    private fun createButton(
+        label: String,
+        color: Int
+    ): MaterialButton {
+
+        return MaterialButton(this).apply {
+            text = label
+            isAllCaps = false
+            setTextColor(Color.WHITE)
+            backgroundTintList = ColorStateList.valueOf(color)
+            cornerRadius = dp(14)
+            textSize = 14f
+        }
+    }
+
+    private fun createText(
+        value: String,
+        size: Float,
+        color: Int,
+        bold: Boolean
+    ): TextView {
+
+        return TextView(this).apply {
+            text = value
+            textSize = size
+            setTextColor(color)
+
+            if (bold) {
+                setTypeface(null, Typeface.BOLD)
             }
+        }
+    }
+
+    private fun createBackground(
+        color: Int,
+        radius: Int,
+        strokeColor: Int? = null
+    ): GradientDrawable {
+
+        return GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(color)
+            cornerRadius = dp(radius).toFloat()
+
+            if (strokeColor != null) {
+                setStroke(dp(1), strokeColor)
+            }
+        }
     }
 
     private fun dp(value: Int): Int {
@@ -422,9 +804,23 @@ class AdminBookingsActivity : AppCompatActivity() {
                 ).toInt()
     }
 
+    private fun toast(value: String) {
+
+        Toast.makeText(
+            this,
+            value,
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
     override fun onDestroy() {
+
         bookingListener?.remove()
+        userListener?.remove()
+
         bookingListener = null
+        userListener = null
+
         super.onDestroy()
     }
 }
